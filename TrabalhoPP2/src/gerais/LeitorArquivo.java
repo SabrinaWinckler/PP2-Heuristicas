@@ -67,12 +67,14 @@ public class LeitorArquivo {
             String[] entradaArray;
             String entradaString;
             String nomeApp;
-            
+
             int numeroTarefa;
             int tarefaEscrava;
             int larguraIda;
             int larguraVolta;
             Aplicativo aplicativo = null;
+            Tarefa tarefa = null;
+            Tarefa escrava = null;           
 
             while ((entradaString = br.readLine()) != null) {
 
@@ -83,21 +85,28 @@ public class LeitorArquivo {
                 larguraIda = Integer.parseInt(entradaArray[3]);
                 larguraVolta = Integer.parseInt(entradaArray[4]);
 
+                tarefa = new Tarefa(numeroTarefa);
+                escrava = new Tarefa(tarefaEscrava, larguraIda, larguraVolta, numeroTarefa);
+
                 if (aplicativo == null) {
                     //caso ainda não exista uma aplicativo
                     aplicativo = new Aplicativo(nomeApp);
-                    aplicativo.addTarefa(new Tarefa(numeroTarefa));
-                    aplicativo.getTarefas().get(0).addEscrava(new Tarefa(tarefaEscrava, larguraIda, larguraVolta));
+                    aplicativo.addTarefa(tarefa);
+                    aplicativo.addTarefa(escrava);
                     listaAplicativos.add(aplicativo);
+
                 } else if (aplicativo.getNome().equals(nomeApp)) {
-                    //Procurando a tarefa mestra e adicionando a escrava
-                    int indexTarefa = aplicativo.getTarefas().indexOf(new Tarefa(numeroTarefa));
-                    aplicativo.getTarefas().get(indexTarefa).addEscrava(new Tarefa(tarefaEscrava, larguraIda, larguraVolta));
+
+                    if (!aplicativo.getTarefas().contains(tarefa)) {
+                        aplicativo.addTarefa(tarefa);
+                    }
+                    aplicativo.addTarefa(escrava);
+
                 } else {
                     //ja existe um aplicativo mas é encontrado um novo na lista    
-                    aplicativo = new Aplicativo(nomeApp);
-                    aplicativo.addTarefa(new Tarefa(numeroTarefa));
-                    aplicativo.getTarefas().get(0).addEscrava(new Tarefa(tarefaEscrava, larguraIda, larguraVolta));
+                    aplicativo = new Aplicativo(nomeApp);                    
+                    aplicativo.addTarefa(tarefa);
+                    aplicativo.addTarefa(escrava);
                     listaAplicativos.add(aplicativo);
                 }
 

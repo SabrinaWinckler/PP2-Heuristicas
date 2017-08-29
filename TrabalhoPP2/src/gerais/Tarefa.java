@@ -5,6 +5,7 @@
  */
 package gerais;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,24 +13,25 @@ import java.util.List;
  * @author Lucas
  */
 public class Tarefa {
-
-    private List<Tarefa> Escravas;
+   
     private int numero;
     private int larguraIda;
     private int larguraVolta;
+    private int mestra;
 
     public Tarefa(int numero) {
-        this.numero = numero;
+        this.numero = numero;        
     }
 
-    public Tarefa(int numero, int larguraIda, int larguraVolta) {
+    public Tarefa(int numero, int larguraIda, int larguraVolta,int mestra) {
         this(numero);
         this.larguraIda = larguraIda;
         this.larguraVolta = larguraVolta;
+        this.mestra = mestra;
     }
 
-    public List<Tarefa> getEscravas() {
-        return Escravas;
+    public int getMestra() {
+        return mestra;
     }
 
     public int getNumero() {
@@ -42,11 +44,7 @@ public class Tarefa {
 
     public int getLarguraVolta() {
         return larguraVolta;
-    }
-
-    public void addEscrava(Tarefa tarefa) {
-        this.Escravas.add(tarefa);
-    }
+    }    
 
     @Override
     public boolean equals(Object o) {

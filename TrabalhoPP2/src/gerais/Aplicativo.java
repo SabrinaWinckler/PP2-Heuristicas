@@ -5,6 +5,7 @@
  */
 package gerais;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,6 +19,7 @@ class Aplicativo {
     
     public Aplicativo(String nome){
         this.nome = nome;
+        this.tarefas = new ArrayList();
     }
     
     public void addTarefa(Tarefa tarefa){
