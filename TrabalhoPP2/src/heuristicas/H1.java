@@ -8,6 +8,8 @@ package heuristicas;
 import gerais.LeitorArquivo;
 import gerais.Tarefa;
 import java.util.ArrayList;
+import gerais.Aplicativo;
+import java.util.List;
 
 /**
  *
@@ -22,21 +24,23 @@ public class H1 {
     }
     
     public void preencheH1(){//Não está pronto.
-        ArrayList<Tarefa> listaTarefas = LeitorArquivo.montarLista(LeitorArquivo.carregarArquivo());          
-        Tarefa tarefaM = listaTarefas.get(0);
+        ArrayList<Aplicativo> listaAplicativos = LeitorArquivo.montarLista(LeitorArquivo.carregarArquivo());          
+        List<Tarefa> listaTarefas = listaAplicativos.get(0).getTarefas();
         Tarefa tarefa = new Tarefa(0);
+        Tarefa tmestra;
         boolean mestra = false;
 
         for(int i = 0; i< ep.length; i++){
             for (int j = 0; j<ep.length; i++){
-                if(tarefa.getNumero() == tarefaM.getMestra()){
+                if(tarefa.getNumero() == listaTarefas.get(i).getMestra()){
                     mestra = true;
+                    tmestra = listaTarefas.get(i);
                 }
-                if(ep [i][j]== null && mestra == true){
-                    ep [i][j] = tarefaM;
+                if(mestra == true && ep [i][j]== null){
+                    ep [i][j] = tarefa;
                     mestra = false;      
                 }
-                while(ep[i][j] == tarefaM){
+                while(ep[i][j] ==listaTarefas.get(i)){
                     if(ep [i][j+1] == null){
                          ep [i][j+1] = tarefa;
                          break;
