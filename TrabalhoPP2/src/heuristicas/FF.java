@@ -23,10 +23,10 @@ public class FF {
     public FF(int tamanho) {
         mat = new Tarefa[tamanho][tamanho];
     }        
-    
-    
-    
+        
     public void add(Tarefa task) {
+        ArrayList<Aplicativo> listaAplicativos =  
+        
         for (int i = 0; i < mat.length; i++) {
             for (int j = 0; j < mat.length; j++){
                 if (mat[i][j] == null) {
