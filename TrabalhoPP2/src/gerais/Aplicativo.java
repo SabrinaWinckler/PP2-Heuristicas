@@ -26,7 +26,7 @@ public class Aplicativo {
         this.tarefas.add(tarefa);
     }
     
-    public List<Tarefa> getTarefas(){
+    public ArrayList<Tarefa> getTarefas(){
         return this.tarefas;
     }
     
