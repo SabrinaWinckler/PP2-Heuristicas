@@ -12,9 +12,9 @@ import java.util.List;
  *
  * @author Lucas
  */
-class Aplicativo {
+public class Aplicativo {
     
-    private List<Tarefa> tarefas;
+    private ArrayList<Tarefa> tarefas;
     private String nome;
     
     public Aplicativo(String nome){
