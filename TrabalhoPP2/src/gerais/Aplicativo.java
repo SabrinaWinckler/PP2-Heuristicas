@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class Aplicativo {
     
-    private ArrayList<Tarefa> tarefas;
+    private List<Tarefa> tarefas;
     private String nome;
     
     public Aplicativo(String nome){
@@ -26,7 +26,7 @@ public class Aplicativo {
         this.tarefas.add(tarefa);
     }
     
-    public ArrayList<Tarefa> getTarefas(){
+    public List<Tarefa> getTarefas(){
         return this.tarefas;
     }
     
