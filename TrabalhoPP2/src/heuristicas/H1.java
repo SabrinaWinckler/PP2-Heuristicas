@@ -27,22 +27,25 @@ public class H1 {
     
     public void preencheH1(){//Não está pronto.
         ArrayList<Aplicativo> listaAplicativos = LeitorArquivo.montarLista(LeitorArquivo.carregarArquivo());          
-        List<Tarefa> listaTarefas = listaAplicativos.get(0).getTarefas();
-        Tarefa tarefa = new Tarefa(0);
-
-        for(int i = 0; i< ep.length; i++){
-            this.identificador = listaTarefas.get(i).getNumero();
-            this.verticeIda = listaTarefas.get(i).getLarguraIda();
-            this.verticeVolta = listaTarefas.get(i).getLarguraVolta();
-            int tarefaMestra = listaTarefas.get(i).getMestra();
+        List<Tarefa> listaTarefas;
+        Tarefa tarefa;
+        for(int a = 0; a<listaAplicativos.size(); a++){
+            listaTarefas = listaAplicativos.get(a).getTarefas();
+            tarefa = new Tarefa(a);
+            for(int i = 0; i< ep.length; i++){
+                this.identificador = listaTarefas.get(i).getNumero();
+                this.verticeIda = listaTarefas.get(i).getLarguraIda();
+                this.verticeVolta = listaTarefas.get(i).getLarguraVolta();
+                int tarefaMestra = listaTarefas.get(i).getMestra();
                 for (int j = 0; j<ep.length; i++){
-                if(this.identificador == tarefaMestra && ep [i][j]== null){
-                    ep [i][j] = tarefa;
-                }                                             
-                if(ep [i][j+1] == null){
-                    ep [i][j+1] = tarefa;
-                    break;
-                }
+                    if(this.identificador == tarefaMestra && ep [i][j]== null){
+                     ep [i][j] = tarefa;
+                     break;
+                    }                                             
+                    if(ep [i][j+1] == null){
+                     ep [i][j+1] = tarefa;
+                     break;
+                    }
                 if(j > 0){
                     if(ep [i][j-1] == null){
                     ep [i][j-1] = tarefa;
@@ -55,13 +58,20 @@ public class H1 {
                         break;
                     }
                 }
-                if(ep [i+1][j] == null){
+//                if(ep [i+1][j] == null){
                 
-                   ep [i+1][j] = tarefa;
-                    break;
-                }
+      //             ep [i+1][j] = tarefa;
+    //                break;
+  //              }
             }
        }
+        }
     }
+    public void mostrar(){
+        for (int i=0; i<6;i++){
+                System.out.println(this.ep[i][0]+ "  " +this.ep[i][1] + "  " + this.ep[i][2]+ "  " +this.ep[i][3]+ "  " +this.ep[i][4] + "  " +this.ep[i][5] + "  ");
+ 
+        }
+   }
 }
 
