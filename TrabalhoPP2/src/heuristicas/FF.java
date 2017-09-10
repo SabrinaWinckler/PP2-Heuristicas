@@ -8,6 +8,8 @@ package heuristicas;
 import gerais.LeitorArquivo;
 import gerais.Aplicativo;
 import gerais.Tarefa;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
