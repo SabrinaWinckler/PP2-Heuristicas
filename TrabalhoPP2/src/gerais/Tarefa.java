@@ -51,5 +51,4 @@ public class Tarefa {
         Tarefa outraTarefa = (Tarefa) o;
         return (this.getNumero() == outraTarefa.getNumero());
     }
-
 }
