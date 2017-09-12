@@ -6,11 +6,12 @@
 package view;
 
 import gerais.Aplicativo;
+import gerais.CanalCom;
 import gerais.LeitorArquivo;
+import gerais.MPSoC;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -76,6 +77,7 @@ public class View extends Application {
     List<Rectangle> listaRectangulos;
     List<Rectangle> listaConexoes;
     List<Color> listaCores;
+    MPSoC mpsoc;
     //</editor-fold>
 
     @Override
@@ -123,6 +125,8 @@ public class View extends Application {
         contarApp();
         AtualizarLabel();
 
+        criarMPSoC();
+
         if (contadorTasksTotal == totalTasks) {
             buttonStart.setDisable(true);
         }
@@ -134,8 +138,11 @@ public class View extends Application {
         listaAplicativos = LeitorArquivo.montarLista(LeitorArquivo.carregarArquivo());
 
         if (listaAplicativos != null) {
+            resetarLegenda();
+            resetarContadores();
             calcularAplicativos();
             AtualizarLabel();
+            criarMPSoC();
             buttonStart.setDisable(false);
         }
 
@@ -188,7 +195,7 @@ public class View extends Application {
         vBoxSettings.getChildren().add(settingsColunas);
         vBoxSettings.getChildren().add(textFieldColunas);
         vBoxSettings.getChildren().add(settingsHeuristica);
-        
+
         comboBoxHeuristicas = new ComboBox();
         comboBoxHeuristicas.getItems().add("FF");
         comboBoxHeuristicas.getItems().add("H1");
@@ -336,6 +343,74 @@ public class View extends Application {
 
         pane.getChildren().setAll(listaRectangulos);
         pane.getChildren().addAll(listaConexoes);
+
+    }
+
+    private void resetarLegenda() {
+
+        for (int i = legendaBox.getChildren().size() - 1; i > 0; i--) {
+            legendaBox.getChildren().remove(i);
+        }
+
+    }
+
+    private void resetarContadores() {
+        contadorApp = 0;
+        contadorTasks = 0;
+        labelAplicativos.setText("0");
+        labelTask.setText("0");
+
+    }
+
+    private void criarMPSoC() {
+        int linhas = 6;
+        int colunas = 6;        
+        
+        if (!textFieldLinhas.getText().isEmpty()) {
+            linhas = Integer.valueOf(textFieldLinhas.getText());
+        }
+
+        if (!textFieldColunas.getText().isEmpty()) {
+            colunas = Integer.valueOf(textFieldColunas.getText());
+        }
+
+        
+        mpsoc = new MPSoC(linhas, colunas);
+        
+        for (int i = 0; i < linhas; i++) {
+            for (int j = 0; j < colunas; j++) {
+                
+                //Celulas que só possuem 1 na frente Horizontal
+                if(i+1 < linhas ){
+                    mpsoc.getCelulas()[i][j].addCanal(new CanalCom(i,j,i+1,j));
+                }
+                
+                //pegar o canal que ja existe e colocar como canal de comunicação contrário Horizontal
+                if(i-1 >= 0){                  
+                    for(CanalCom canal : mpsoc.getCelulas()[i-1][j].getListaCanais()){
+                       if (canal.equals(new CanalCom(i-1,j,i,j))) {
+                            mpsoc.getCelulas()[i][j].addCanal(canal);
+                        }
+                    }              
+                }
+                
+                //Celulas que só possuem 1 na frente Vertical
+                if(j+1 < colunas ){
+                    mpsoc.getCelulas()[i][j].addCanal(new CanalCom(i,j,i,j+1));
+                }
+                
+                //pegar o canal que ja existe e colocar como canal de comunicação contrário Vertical
+                if(j-1 >= 0){                    
+                    for(CanalCom canal : mpsoc.getCelulas()[i][j-1].getListaCanais()){
+                        if (canal.equals(new CanalCom(i,j-1,i,j))) {
+                            mpsoc.getCelulas()[i][j].addCanal(canal);
+                        }
+                    }              
+                }
+                
+                
+            }
+        }
 
     }
 

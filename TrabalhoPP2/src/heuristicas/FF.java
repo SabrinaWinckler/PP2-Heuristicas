@@ -5,9 +5,8 @@
  */
 package heuristicas;
 
-import gerais.LeitorArquivo;
 import gerais.Aplicativo;
-import gerais.Celula;
+import gerais.CanalCom;
 import gerais.MPSoC;
 import gerais.Tarefa;
 import java.util.ArrayList;
@@ -21,28 +20,60 @@ public class FF {
 
     private MPSoC mat;
     private ArrayList<Aplicativo> listaApp;
+    private int i = 0;
+    private int j = 0;
 
     public FF(MPSoC mpsoc) {
         this.mat = mpsoc;
     }
 
-    public void add() {
-        int i = 0, j = 0;
+    public void executar() {
+       
         
         List<Tarefa> listaTar;
         
         for (int l = 0; l < listaApp.size(); l++) {
             listaTar = listaApp.get(l).getTarefas();
             for (int k = 0; k < listaTar.size(); k++) {
-                mat.add(new Celula(i, j));
+                
+                if(listaTar.get(k).getNumero() == 0){
+                     mat.getCelulas()[i][j].setTarefa(listaTar.get(k));
+                }else{
+                     mat.getCelulas()[i][j].setTarefa(listaTar.get(k));
+                     preencherCanais(listaTar.get(k));
+                }
+               
+                                
+                
                 j++;
-                if (j == mat.length) {
+                if (j == mat.getNColunas()) {
                     i++;
                     j = 0;
                 }
             }
 
         }
+    }
+
+    private void preencherCanais(Tarefa tarefa) {
+        
+        int[] posicaoMestra;
+        
+        posicaoMestra = mat.getIndexTarefa(new Tarefa(tarefa.getMestra(),tarefa.getAplicativo()));
+        
+        if(posicaoMestra[1] == j){
+            for(int l = 0; l<=i; l++){
+                for(CanalCom canal :mat.getCelulas()[l][j].getListaCanais()){
+                    
+                    if(canal.equals(new CanalCom(l,j,l+1,j))){
+                        canal.addCargaIda(tarefa.getLarguraIda());
+                        canal.addCargaVolta(tarefa.getLarguraVolta());
+                    }
+                    
+                }
+            }
+        }
+        
     }
 
 }
