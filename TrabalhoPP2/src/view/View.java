@@ -10,6 +10,7 @@ import gerais.LeitorArquivo;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -53,6 +54,8 @@ public class View extends Application {
     Label labelAplicativosTotal;
     Label labelGeral;
 
+    VBox legendaBox;
+
     int windowWidth = 800;
     int windowHeight = 600;
     int hGap = 60;
@@ -72,6 +75,7 @@ public class View extends Application {
     int linhas = 6;
     List<Rectangle> listaRectangulos;
     List<Rectangle> listaConexoes;
+    List<Color> listaCores;
     //</editor-fold>
 
     @Override
@@ -80,11 +84,17 @@ public class View extends Application {
         this.stage = stage;
         listaRectangulos = new ArrayList();
         listaConexoes = new ArrayList();
+        listaCores = new ArrayList();
+        listaCores.add(Color.RED);
+        listaCores.add(Color.BLUE);
+        listaCores.add(Color.AQUA);
+        listaCores.add(Color.BROWN);
+        listaCores.add(Color.CHARTREUSE);
 
         definirLayout();
         eventHandlers();
         buttonStart.setDisable(true);
-        
+
 //        montarMatrizVisual();
     }
 
@@ -112,8 +122,8 @@ public class View extends Application {
         labelTask.setText(String.valueOf(contadorTasksTotal));
         contarApp();
         AtualizarLabel();
-        
-        if(contadorTasksTotal == totalTasks){
+
+        if (contadorTasksTotal == totalTasks) {
             buttonStart.setDisable(true);
         }
 
@@ -122,13 +132,13 @@ public class View extends Application {
     private void buttonImportClick() {
 
         listaAplicativos = LeitorArquivo.montarLista(LeitorArquivo.carregarArquivo());
-        
-        if(listaAplicativos != null){
+
+        if (listaAplicativos != null) {
             calcularAplicativos();
             AtualizarLabel();
             buttonStart.setDisable(false);
         }
-        
+
     }
 
     //</editor-fold>
@@ -152,9 +162,40 @@ public class View extends Application {
 
         paneLegenda = new Pane();
         paneLegenda.setMinSize(150, 250);
+        legendaBox = new VBox();
+        Label legendaTitle = new Label("Legenda");
+        legendaBox.getChildren().add(legendaTitle);
+        paneLegenda.getChildren().add(legendaBox);
 
+        VBox vBoxSettings = new VBox();
         paneSettings = new Pane();
         paneSettings.setMinSize(150, 250);
+        paneSettings.setStyle("-fx-border-color:black");
+        Label settingsTitle = new Label("Settings");
+        Label settingsLinhas = new Label("Linhas");
+        Label settingsColunas = new Label("Colunas");
+        Label settingsHeuristica = new Label("Heurística");
+        settingsTitle.setStyle("-fx-text-fill: #FFF;-fx-font-weight: bold;");
+        settingsLinhas.setStyle("-fx-text-fill: #FFF;-fx-font-weight: bold;");
+        settingsColunas.setStyle("-fx-text-fill: #FFF;-fx-font-weight: bold;");
+        settingsHeuristica.setStyle("-fx-text-fill: #FFF;-fx-font-weight: bold;");
+        vBoxSettings.setPadding(new Insets(10, 10, 10, 10));
+        vBoxSettings.getChildren().add(settingsTitle);
+        textFieldLinhas = new TextField();
+        textFieldColunas = new TextField();
+        vBoxSettings.getChildren().add(settingsLinhas);
+        vBoxSettings.getChildren().add(textFieldLinhas);
+        vBoxSettings.getChildren().add(settingsColunas);
+        vBoxSettings.getChildren().add(textFieldColunas);
+        vBoxSettings.getChildren().add(settingsHeuristica);
+        
+        comboBoxHeuristicas = new ComboBox();
+        comboBoxHeuristicas.getItems().add("FF");
+        comboBoxHeuristicas.getItems().add("H1");
+        comboBoxHeuristicas.getItems().add("H2");
+        comboBoxHeuristicas.getSelectionModel().selectFirst();
+        vBoxSettings.getChildren().add(comboBoxHeuristicas);
+        paneSettings.getChildren().add(vBoxSettings);
 
         scrollLegenda.setContent(paneLegenda);
 
@@ -234,27 +275,46 @@ public class View extends Application {
 
         labelAplicativosTotal.setText(String.valueOf(listaAplicativos.size()));
 
-        
+        int contCor = 0;
 
         for (Aplicativo app : listaAplicativos) {
             totalTasks += app.getTarefas().size();
+            app.setCor(listaCores.get(contCor));
+            criarLegenda(app.getNome(), listaCores.get(contCor));
+            contCor++;
         }
 
         labelTaskTotal.setText(String.valueOf(totalTasks));
 
     }
 
-    private void contarApp() {
-        
-        if(listaAplicativos.get(contadorApp).getTarefas().size() == contadorTasks){
-            contadorApp++;
-            contadorTasks=0;
-        }
-        
-        labelAplicativos.setText(String.valueOf(contadorApp));
-        
+    private void criarLegenda(String nome, Color cor) {
+
+        HBox legendaItem = new HBox();
+        Label labelNome = new Label(nome);
+
+        Rectangle quadradoCor = new Rectangle(10, 10);
+        quadradoCor.setFill(cor);
+
+        legendaItem.setPadding(new Insets(5, 5, 5, 5));
+        legendaItem.getChildren().add(quadradoCor);
+        legendaItem.getChildren().add(labelNome);
+
+        legendaBox.getChildren().add(legendaItem);
+
     }
-    
+
+    private void contarApp() {
+
+        if (listaAplicativos.get(contadorApp).getTarefas().size() == contadorTasks) {
+            contadorApp++;
+            contadorTasks = 0;
+        }
+
+        labelAplicativos.setText(String.valueOf(contadorApp));
+
+    }
+
     private void montarMatrizVisual() {
 
         for (int i = 0; i < linhas; i++) {
@@ -279,5 +339,4 @@ public class View extends Application {
 
     }
 
-    
 }

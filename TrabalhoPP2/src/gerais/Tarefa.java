@@ -10,18 +10,20 @@ package gerais;
  * @author Lucas
  */
 public class Tarefa {
-   
+
     private int numero;
     private int larguraIda;
     private int larguraVolta;
     private int mestra;
+    private Aplicativo aplicativo;
 
-    public Tarefa(int numero) {
-        this.numero = numero;        
+    public Tarefa(int numero, Aplicativo aplicativo) {
+        this.numero = numero;
+        this.aplicativo = aplicativo;
     }
 
-    public Tarefa(int numero, int larguraIda, int larguraVolta,int mestra) {
-        this(numero);
+    public Tarefa(int numero, Aplicativo aplicativo, int larguraIda, int larguraVolta, int mestra) {
+        this(numero, aplicativo);
         this.larguraIda = larguraIda;
         this.larguraVolta = larguraVolta;
         this.mestra = mestra;
@@ -41,7 +43,11 @@ public class Tarefa {
 
     public int getLarguraVolta() {
         return larguraVolta;
-    }    
+    }
+
+    public Aplicativo getAplicativo() {
+        return this.aplicativo;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -49,6 +55,6 @@ public class Tarefa {
             return false;
         }
         Tarefa outraTarefa = (Tarefa) o;
-        return (this.getNumero() == outraTarefa.getNumero());
+        return ((this.getNumero() == outraTarefa.getNumero()) && (this.getAplicativo() == outraTarefa.getAplicativo()));
     }
 }

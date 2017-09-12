@@ -7,6 +7,7 @@ package gerais;
 
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.paint.Color;
 
 /**
  *
@@ -16,6 +17,7 @@ public class Aplicativo {
     
     private List<Tarefa> tarefas;
     private String nome;
+    private Color cor;
     
     public Aplicativo(String nome){
         this.nome = nome;
@@ -33,5 +35,13 @@ public class Aplicativo {
     public String getNome(){
         return this.nome;
     }
+
+    public Color getCor() {
+        return cor;
+    }
+
+    public void setCor(Color cor) {
+        this.cor = cor;
+    }    
     
 }

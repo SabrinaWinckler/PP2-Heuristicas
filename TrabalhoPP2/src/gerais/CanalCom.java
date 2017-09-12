@@ -5,38 +5,51 @@
  */
 package gerais;
 
-import java.util.List;
-
 /**
  *
  * @author Lucas
  */
 public class CanalCom {
-    Tarefa tarefa;
-    List<CanalCom> listaCanais;
-    int i;
-    int j;
     
-    public CanalCom(int i, int j){
+    int cargaIda;
+    int cargaVolta;
+    int[] posicaoInicial;
+    int[] posicaoFinal;
+    
+    public CanalCom(int xInicial, int yInicial, int xFinal, int yFinal){
+        
+        posicaoInicial = new int[2];
+        posicaoInicial[0] = xInicial;
+        posicaoInicial[1] = yInicial;
+        
+        posicaoFinal = new int[2];
+        posicaoFinal[0] = xFinal;
+        posicaoFinal[1] = yFinal;
         
     }
 
-    public Tarefa getTarefa() {
-        return tarefa;
+    public int getCargaIda() {
+        return cargaIda;
     }
 
-    public List<CanalCom> getListaCanais() {
-        return listaCanais;
+    public void setCargaIda(int cargaIda) {
+        this.cargaIda = cargaIda;
     }
 
-    public int getI() {
-        return i;
+    public int getCargaVolta() {
+        return cargaVolta;
     }
 
-    public int getJ() {
-        return j;
+    public void setCargaVolta(int cargaVolta) {
+        this.cargaVolta = cargaVolta;
     }
-    
-    
-    
+
+    public int[] getPosicaoInicial() {
+        return posicaoInicial;
+    }
+
+    public int[] getPosicaoFinal() {
+        return posicaoFinal;
+    }
+
 }

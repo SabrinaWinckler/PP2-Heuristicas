@@ -7,6 +7,8 @@ package heuristicas;
 
 import gerais.LeitorArquivo;
 import gerais.Aplicativo;
+import gerais.Celula;
+import gerais.MPSoC;
 import gerais.Tarefa;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,33 +18,31 @@ import java.util.List;
  * @author Lucas
  */
 public class FF {
-    private Tarefa[][] mat;
 
-    public FF(Tarefa[][] mat) {
-        this.mat = mat;
+    private MPSoC mat;
+    private ArrayList<Aplicativo> listaApp;
+
+    public FF(MPSoC mpsoc) {
+        this.mat = mpsoc;
     }
-    
-    public FF(int tamanho) {
-        mat = new Tarefa[tamanho][tamanho];
-    }        
+
+    public void add() {
+        int i = 0, j = 0;
         
-     public void add() { 
-        int i = 0, j = 0; 
-        ArrayList<Aplicativo> listaApp = LeitorArquivo.montarLista(LeitorArquivo.carregarArquivo()); 
-        List<Tarefa> listaTar; 
-        for (int l = 0; l < listaApp.size(); l++) { 
-            listaTar = listaApp.get(l).getTarefas(); 
-            for (int k = 0; k < listaTar.size(); k++) { 
-                mat[i][j] = listaTar.get(k); 
-                j++; 
-                if (j == mat.length) { 
-                    i++; 
-                    j = 0; 
-                } 
-            } 
-             
-        } 
-    } 
-    
-    
+        List<Tarefa> listaTar;
+        
+        for (int l = 0; l < listaApp.size(); l++) {
+            listaTar = listaApp.get(l).getTarefas();
+            for (int k = 0; k < listaTar.size(); k++) {
+                mat.add(new Celula(i, j));
+                j++;
+                if (j == mat.length) {
+                    i++;
+                    j = 0;
+                }
+            }
+
+        }
+    }
+
 }
