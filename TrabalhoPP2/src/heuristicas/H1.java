@@ -24,47 +24,82 @@ public class H1 {
     public H1(int tamanho) {
         this.ep = new Tarefa [tamanho][tamanho];
     }
-    
-    public void preencheH1(){//Não está pronto.
+    public boolean verificarVerticeIda(int verticeAtualIda,int verticeIdaAlocado){
+        if(verticeIdaAlocado == 0){
+            return true;
+        }
+        if(verticeAtualIda < verticeIdaAlocado){
+            return true;
+            }
+        return false;
+    }
+    public boolean verificarVerticeVolta( int verticeAtualVolta,int verticeVoltaAlocado){
+         if(verticeVoltaAlocado == 0){
+             return true;
+         }
+         if(verticeAtualVolta < verticeVoltaAlocado){
+            return true;
+            }
+        return false;
+    }
+    public int calcularComunicacaoIda(int verticeIdaAlocado, int verticeAtual){
+        verticeIdaAlocado = verticeAtual + verticeIdaAlocado;
+        return verticeIdaAlocado;
+    }
+    public int calcularComunicacaoVolta(int verticeVoltaAlocado, int verticeAtual){
+        verticeVoltaAlocado = verticeAtual + verticeVoltaAlocado;
+        return verticeVoltaAlocado;
+    }
+    public void preencheH1(){
         ArrayList<Aplicativo> listaAplicativos = LeitorArquivo.montarLista(LeitorArquivo.carregarArquivo());          
         List<Tarefa> listaTarefas;
         Tarefa tarefa;
+        Tarefa tarefaM = null;
+        int verticeAlocadoIda, verticeAlocadoVolta;
+        verticeAlocadoIda = 0;
+        verticeAlocadoVolta = 0;
         for(int a = 0; a<listaAplicativos.size(); a++){
             listaTarefas = listaAplicativos.get(a).getTarefas();
-            tarefa = new Tarefa(a);
             for(int i = 0; i< ep.length; i++){
-                this.identificador = listaTarefas.get(i).getNumero();
-                this.verticeIda = listaTarefas.get(i).getLarguraIda();
-                this.verticeVolta = listaTarefas.get(i).getLarguraVolta();
-                int tarefaMestra = listaTarefas.get(i).getMestra();
-                for (int j = 0; j<ep.length; i++){
-                    if(this.identificador == tarefaMestra && ep [i][j]== null){
-                     ep [i][j] = tarefa;
-                     break;
-                    }                                             
-                    if(ep [i][j+1] == null){
-                     ep [i][j+1] = tarefa;
-                     break;
-                    }
-                if(j > 0){
-                    if(ep [i][j-1] == null){
-                    ep [i][j-1] = tarefa;
-                    break;
-                    }
-                }
-                if(i>0){
-                    if(ep [i-1][j] == null){
-                        ep [i-1][j] = tarefa;
+                   
+                 for (int j = 0; j<ep.length-1; i++){
+                     this.identificador = listaTarefas.get(i).getNumero();
+                     this.verticeIda = listaTarefas.get(i).getLarguraIda();
+                     this.verticeVolta = listaTarefas.get(i).getLarguraVolta();
+                     int tarefaMestra = listaTarefas.get(i).getMestra();
+                      
+                     if(this.identificador == tarefaMestra){
+                        tarefaM = listaTarefas.get(i);
+                        ep[i][j] = tarefaM;
                         break;
+                     }
+                     
+                     if(this.identificador != tarefaMestra){
+                         int verticeAtualIda = this.verticeIda;
+                         int verticeAtualVolta = this.verticeVolta;
+                         if(!verificarVerticeIda(verticeAtualIda,verticeAlocadoIda) && !verificarVerticeVolta(verticeAtualVolta, verticeAlocadoVolta)){                     
+                            for(int x = 0; x < ep.length-1; x++  ){//não consegui fazer o que eu queria fazer aqui, que seria verificar as posições vazias, calcular a comunicação delas com suas mestras
+                                for(int y = 0; y<ep.length-1;y++){
+                                    if(ep[x][y] == null){
+                                       calcularComunicacaoIda(verticeAlocadoIda, verticeAtualIda); 
+                                       calcularComunicacaoVolta(verticeAlocadoVolta,verticeAtualVolta);
+                                       if(verificarVerticeIda(verticeAtualIda,verticeAlocadoIda) && verificarVerticeVolta(verticeAtualVolta, verticeAlocadoVolta)){
+                                           ep [x][y] = listaTarefas.get(i);
+                                           break;
+                                       }
+                                    }
+                                }
+                                break;
+                            }
+                             
+                         }
+                         ep [i][j] = listaTarefas.get(i);
+                         verticeAlocadoIda = calcularComunicacaoIda(verticeAlocadoIda, verticeAtualIda);
+                         verticeAlocadoVolta = calcularComunicacaoVolta(verticeAlocadoVolta,verticeAtualVolta);
+                         break;
                     }
                 }
-//                if(ep [i+1][j] == null){
-                
-      //             ep [i+1][j] = tarefa;
-    //                break;
-  //              }
             }
-       }
         }
     }
     public void mostrar(){
