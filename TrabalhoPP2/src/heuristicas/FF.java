@@ -42,9 +42,6 @@ public class FF {
                      mat.getCelulas()[i][j].setTarefa(listaTar.get(k));
                      preencherCanais(listaTar.get(k));
                 }
-               
-                                
-                
                 j++;
                 if (j == mat.getNColunas()) {
                     i++;

@@ -124,7 +124,7 @@ public class View extends Application {
         labelTask.setText(String.valueOf(contadorTasksTotal));
         contarApp();
         AtualizarLabel();
-
+        montarMatrizVisual();
         criarMPSoC();
 
         if (contadorTasksTotal == totalTasks) {
