@@ -5,16 +5,24 @@
  */
 package gerais;
 
+import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+
 /**
  *
  * @author Lucas
  */
 public class CanalCom {
 
-    int cargaIda =0;
+    int cargaIda = 0;
     int cargaVolta = 0;
     int[] posicaoInicial;
     int[] posicaoFinal;
+    Rectangle imagem;
+    Label texto;
 
     public CanalCom(int xInicial, int yInicial, int xFinal, int yFinal) {
 
@@ -50,6 +58,37 @@ public class CanalCom {
 
     public int[] getPosicaoFinal() {
         return posicaoFinal;
+    }
+
+    public void setImagem(Rectangle imagem) {
+
+        this.imagem = imagem;
+        updateCor();
+
+    }
+
+    public void setLabel(Label texto) {
+
+        this.texto = texto;
+        texto.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+        texto.toFront();
+        updateLabel();
+    }
+
+    public void updateLabel() {
+        texto.setText("[" + String.valueOf(this.cargaIda) + "|" + String.valueOf(this.cargaVolta) + "]");
+    }
+
+    public void updateCor() {
+        if (this.cargaIda < 50 || this.cargaVolta < 50) {
+            this.imagem.setFill(Color.GREEN);
+        }
+        if (this.cargaIda >= 50 || this.cargaVolta >= 50) {
+            this.imagem.setFill(Color.YELLOW);
+        }
+        if (this.cargaIda > 90 || this.cargaVolta > 90) {
+            this.imagem.setFill(Color.RED);
+        }
     }
 
     @Override

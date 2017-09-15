@@ -9,6 +9,8 @@ import gerais.Aplicativo;
 import gerais.CanalCom;
 import gerais.LeitorArquivo;
 import gerais.MPSoC;
+import heuristicas.FF;
+import heuristicas.Heuristica;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
@@ -59,15 +61,15 @@ public class View extends Application {
 
     int windowWidth = 800;
     int windowHeight = 600;
-    int hGap = 60;
-    int vGap = 60;
-    int width = 30;
-    int height = 30;
-
+    int hGap = 120;
+    int vGap = 120;
+    int width = 60;
+    int height = 60;
     //</editor-fold>
+
     //<editor-fold defaultstate="collapsed" desc="Declaração Variavéis">
     ArrayList<Rectangle> list;
-    List<Aplicativo> listaAplicativos;
+    ArrayList<Aplicativo> listaAplicativos;
     int contadorTasksTotal = 0;
     int contadorTasks = 0;
     int contadorApp = 0;
@@ -78,6 +80,7 @@ public class View extends Application {
     List<Rectangle> listaConexoes;
     List<Color> listaCores;
     MPSoC mpsoc;
+    Heuristica heuristica;
     //</editor-fold>
 
     @Override
@@ -87,17 +90,16 @@ public class View extends Application {
         listaRectangulos = new ArrayList();
         listaConexoes = new ArrayList();
         listaCores = new ArrayList();
-        listaCores.add(Color.RED);
-        listaCores.add(Color.BLUE);
-        listaCores.add(Color.AQUA);
-        listaCores.add(Color.BROWN);
-        listaCores.add(Color.CHARTREUSE);
+        listaCores.add(Color.BISQUE);
+        listaCores.add(Color.CADETBLUE);
+        listaCores.add(Color.DARKSALMON);
+        listaCores.add(Color.KHAKI);
+        listaCores.add(Color.ROYALBLUE);
 
         definirLayout();
         eventHandlers();
         buttonStart.setDisable(true);
 
-//        montarMatrizVisual();
     }
 
     private void eventHandlers() {
@@ -119,13 +121,26 @@ public class View extends Application {
     //<editor-fold defaultstate="collapsed" desc="Implementacao Ações botões">
     private void buttonStartClick() {
 
+        setLinhasColunas();
+
+        if (mpsoc == null) {
+            criarMPSoC();
+        }
+
+        if (contadorTasks == 0 && contadorApp == 0) {
+            switch (comboBoxHeuristicas.getValue()) {
+                case "FF":
+                    heuristica = new FF(mpsoc, listaAplicativos);
+            }
+        }
+
+        heuristica.executar();
+
         contadorTasksTotal++;
         contadorTasks++;
         labelTask.setText(String.valueOf(contadorTasksTotal));
         contarApp();
         AtualizarLabel();
-        montarMatrizVisual();
-        criarMPSoC();
 
         if (contadorTasksTotal == totalTasks) {
             buttonStart.setDisable(true);
@@ -142,7 +157,6 @@ public class View extends Application {
             resetarContadores();
             calcularAplicativos();
             AtualizarLabel();
-            criarMPSoC();
             buttonStart.setDisable(false);
         }
 
@@ -245,8 +259,8 @@ public class View extends Application {
         hBox.getChildren().add(buttonImport);
         hBox.getChildren().add(buttonStart);
         hBox.setAlignment(Pos.BASELINE_RIGHT);
-
         //</editor-fold>
+
         //<editor-fold defaultstate="collapsed" desc="Centro">
         pane = new Pane();
         pane.setMinHeight(500);
@@ -322,18 +336,18 @@ public class View extends Application {
 
     }
 
-    private void montarMatrizVisual() {
+    private void montarMatrizInicial() {
 
-        for (int i = 0; i < linhas; i++) {
-            for (int j = 0; j < colunas; j++) {
+        for (int i = 0; i < colunas; i++) {
+            for (int j = 0; j < linhas; j++) {
 
                 listaRectangulos.add(new Rectangle(i * hGap + width, j * vGap + height, width, height));
                 listaRectangulos.get(i * linhas + j).setFill(Color.GRAY);
 
-                if (i + 1 > 0 && i + 1 < linhas) {
+                if (i + 1 < colunas) {
                     listaConexoes.add(new Rectangle((i * hGap + width) + width, (j * vGap + (height / 2 - 5)) + height, width, 10));
                 }
-                if (j + 1 > 0 && j + 1 < linhas) {
+                if (j + 1 < linhas) {
                     listaConexoes.add(new Rectangle((i * hGap + (width / 2 - 5)) + width, (j * vGap + height) + height, 10, height));
                 }
 
@@ -363,9 +377,75 @@ public class View extends Application {
     }
 
     private void criarMPSoC() {
-        int linhas = 6;
-        int colunas = 6;        
-        
+
+        mpsoc = new MPSoC(linhas, colunas);
+
+        for (int i = 0; i < linhas; i++) {
+            for (int j = 0; j < colunas; j++) {
+
+                mpsoc.getCelulas()[i][j].setImagem(new Rectangle(j * hGap + width, i * vGap + height, width, height));
+                pane.getChildren().add(mpsoc.getCelulas()[i][j].getImagem());
+                mpsoc.getCelulas()[i][j].setLabel(new Label());
+                pane.getChildren().add(mpsoc.getCelulas()[i][j].getLabel());
+                mpsoc.getCelulas()[i][j].getLabel().setLayoutX((j * hGap + width) + width / 2 - 10);
+                mpsoc.getCelulas()[i][j].getLabel().setLayoutY((i * vGap + height) + height / 2 - 10);
+
+                //Celulas que só possuem 1 na frente Horizontal
+                if (j + 1 < colunas) {
+                    CanalCom canal = new CanalCom(i, j, i, j + 1);
+                    Rectangle canalRectangle = new Rectangle((j * hGap + width) + width, (i * vGap + (height / 2 - 5)) + height, width, 10);
+                    Label canalLabel = new Label();
+                    canalLabel.setLayoutX((j * hGap + width) + width);
+                    canalLabel.setLayoutY((i * vGap + (height / 2 - 5)) + height - 20);
+                    canal.setImagem(canalRectangle);
+                    canal.setLabel(canalLabel);
+
+                    pane.getChildren().add(canalRectangle);
+                    pane.getChildren().add(canalLabel);
+                    mpsoc.getCelulas()[i][j].addCanal(canal);
+                }
+
+                //pegar o canal que ja existe e colocar como canal de comunicação contrário Horizontal
+                if (j - 1 >= 0) {
+                    for (CanalCom canal : mpsoc.getCelulas()[i][j - 1].getListaCanais()) {
+                        if (canal.equals(new CanalCom(i, j - 1, i, j))) {
+                            mpsoc.getCelulas()[i][j].addCanal(canal);
+                        }
+                    }
+                }
+
+                //Celulas que só possuem 1 na frente Vertical
+                if (i + 1 < linhas) {
+                    CanalCom canal = new CanalCom(i, j, i + 1, j);
+                    Rectangle canalRectangle = new Rectangle((j * hGap + (width / 2 - 5)) + width, (i * vGap + height) + height, 10, height);
+                    Label canalLabel = new Label();
+                    canalLabel.setLayoutX((j * hGap + (width / 2 - 5)) + width);
+                    canalLabel.setLayoutY((i * vGap + height) + height + 20);
+                    canalLabel.setRotate(-90);
+                    canal.setImagem(canalRectangle);
+                    canal.setLabel(canalLabel);
+
+                    pane.getChildren().add(canalRectangle);
+                    pane.getChildren().add(canalLabel);
+
+                    mpsoc.getCelulas()[i][j].addCanal(canal);
+                }
+
+                //pegar o canal que ja existe e colocar como canal de comunicação contrário Vertical
+                if (i - 1 >= 0) {
+                    for (CanalCom canal : mpsoc.getCelulas()[i - 1][j].getListaCanais()) {
+                        if (canal.equals(new CanalCom(i - 1, j, i, j))) {
+                            mpsoc.getCelulas()[i][j].addCanal(canal);
+                        }
+                    }
+                }
+
+            }
+        }
+
+    }
+
+    private void setLinhasColunas() {
         if (!textFieldLinhas.getText().isEmpty()) {
             linhas = Integer.valueOf(textFieldLinhas.getText());
         }
@@ -373,45 +453,6 @@ public class View extends Application {
         if (!textFieldColunas.getText().isEmpty()) {
             colunas = Integer.valueOf(textFieldColunas.getText());
         }
-
-        
-        mpsoc = new MPSoC(linhas, colunas);
-        
-        for (int i = 0; i < linhas; i++) {
-            for (int j = 0; j < colunas; j++) {
-                
-                //Celulas que só possuem 1 na frente Horizontal
-                if(i+1 < linhas ){
-                    mpsoc.getCelulas()[i][j].addCanal(new CanalCom(i,j,i+1,j));
-                }
-                
-                //pegar o canal que ja existe e colocar como canal de comunicação contrário Horizontal
-                if(i-1 >= 0){                  
-                    for(CanalCom canal : mpsoc.getCelulas()[i-1][j].getListaCanais()){
-                       if (canal.equals(new CanalCom(i-1,j,i,j))) {
-                            mpsoc.getCelulas()[i][j].addCanal(canal);
-                        }
-                    }              
-                }
-                
-                //Celulas que só possuem 1 na frente Vertical
-                if(j+1 < colunas ){
-                    mpsoc.getCelulas()[i][j].addCanal(new CanalCom(i,j,i,j+1));
-                }
-                
-                //pegar o canal que ja existe e colocar como canal de comunicação contrário Vertical
-                if(j-1 >= 0){                    
-                    for(CanalCom canal : mpsoc.getCelulas()[i][j-1].getListaCanais()){
-                        if (canal.equals(new CanalCom(i,j-1,i,j))) {
-                            mpsoc.getCelulas()[i][j].addCanal(canal);
-                        }
-                    }              
-                }
-                
-                
-            }
-        }
-
     }
 
 }

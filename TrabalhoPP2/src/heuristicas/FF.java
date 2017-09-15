@@ -6,7 +6,6 @@
 package heuristicas;
 
 import gerais.Aplicativo;
-import gerais.CanalCom;
 import gerais.MPSoC;
 import gerais.Tarefa;
 import java.util.ArrayList;
@@ -16,61 +15,63 @@ import java.util.List;
  *
  * @author Lucas
  */
-public class FF {
+public class FF implements Heuristica {
 
-    private MPSoC mat;
-    private ArrayList<Aplicativo> listaApp;
-    private int i = 0;
-    private int j = 0;
+    private MPSoC mpsoc;
+    private ArrayList<Aplicativo> listaAplicativos;
+    private List<Tarefa> listaTarefas;
+    private int contadorLinha = 0;
+    private int contadorColuna = 0;
+    private int contadorAplicativo = 0;
+    private int contadorTarefa = 0;
 
-    public FF(MPSoC mpsoc) {
-        this.mat = mpsoc;
+    public FF(MPSoC mpsoc, ArrayList<Aplicativo> listaAplicativos) {
+        this.mpsoc = mpsoc;
+        this.listaAplicativos = listaAplicativos;
+
     }
 
     public void executar() {
-       
-        
-        List<Tarefa> listaTar;
-        
-        for (int l = 0; l < listaApp.size(); l++) {
-            listaTar = listaApp.get(l).getTarefas();
-            for (int k = 0; k < listaTar.size(); k++) {
+
+        listaTarefas = listaAplicativos.get(contadorAplicativo).getTarefas();
+
+        Tarefa tarefa = listaTarefas.get(contadorTarefa);
+
+        if (mpsoc.getCelulas()[contadorLinha][contadorColuna].getTarefa() == null) {
+            mpsoc.getCelulas()[contadorLinha][contadorColuna].setTarefa(tarefa);
+            mpsoc.getCelulas()[contadorLinha][contadorColuna].updateCor();
+            mpsoc.getCelulas()[contadorLinha][contadorColuna].updateLabel();
+
+            if (mpsoc.getCelulas()[contadorLinha][contadorColuna].getTarefa().getNumero() != 0) {
                 
-                if(listaTar.get(k).getNumero() == 0){
-                     mat.getCelulas()[i][j].setTarefa(listaTar.get(k));
-                }else{
-                     mat.getCelulas()[i][j].setTarefa(listaTar.get(k));
-                     preencherCanais(listaTar.get(k));
-                }
-                j++;
-                if (j == mat.getNColunas()) {
-                    i++;
-                    j = 0;
-                }
+                int mestra = mpsoc.getCelulas()[contadorLinha][contadorColuna].getTarefa().getMestra();
+                Aplicativo aplicativo = mpsoc.getCelulas()[contadorLinha][contadorColuna].getTarefa().getAplicativo();
+                
+                int[] posicaoMestra = mpsoc.getIndexTarefa(new Tarefa(mestra,aplicativo));
+                int[] posicaoEscrava = mpsoc.getIndexTarefa(mpsoc.getCelulas()[contadorLinha][contadorColuna].getTarefa());
+                
+                mpsoc.preencherCanais(posicaoEscrava, posicaoMestra);
+                
             }
 
-        }
-    }
+        } else {
 
-    private void preencherCanais(Tarefa tarefa) {
-        
-        int[] posicaoMestra;
-        
-        posicaoMestra = mat.getIndexTarefa(new Tarefa(tarefa.getMestra(),tarefa.getAplicativo()));
-        
-        if(posicaoMestra[1] == j){
-            for(int l = 0; l<=i; l++){
-                for(CanalCom canal :mat.getCelulas()[l][j].getListaCanais()){
-                    
-                    if(canal.equals(new CanalCom(l,j,l+1,j))){
-                        canal.addCargaIda(tarefa.getLarguraIda());
-                        canal.addCargaVolta(tarefa.getLarguraVolta());
-                    }
-                    
-                }
-            }
         }
+
+        contadorColuna++;
         
+        if (contadorColuna == mpsoc.getNColunas()) {
+            contadorColuna = 0;
+            contadorLinha++;
+        } 
+
+        contadorTarefa++;
+        
+        if (contadorTarefa == listaTarefas.size()) {
+            contadorAplicativo++;
+            contadorTarefa = 0;
+        } 
+
     }
 
 }
