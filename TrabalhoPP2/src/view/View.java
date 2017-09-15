@@ -11,12 +11,14 @@ import gerais.LeitorArquivo;
 import gerais.MPSoC;
 import heuristicas.FF;
 import heuristicas.Heuristica;
+import heuristicas.NN;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -25,6 +27,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -41,6 +44,7 @@ public class View extends Application {
     Scene scene;
     Button buttonStart;
     Button buttonImport;
+    Button buttonReset;
     ComboBox<String> comboBoxHeuristicas;
     Pane pane;
     Pane paneLegenda;
@@ -99,6 +103,7 @@ public class View extends Application {
         definirLayout();
         eventHandlers();
         buttonStart.setDisable(true);
+        buttonReset.setDisable(true);
 
     }
 
@@ -116,12 +121,25 @@ public class View extends Application {
             });
         }
 
+        if (buttonReset != null) {
+            buttonReset.setOnAction(event -> {
+                buttonResetClick();
+            });
+        }
+
+        comboBoxHeuristicas.setOnAction(event -> {
+            heuristicaChange();
+        });
+
     }
 
     //<editor-fold defaultstate="collapsed" desc="Implementacao Ações botões">
     private void buttonStartClick() {
 
         setLinhasColunas();
+
+        textFieldColunas.setDisable(true);
+        textFieldLinhas.setDisable(true);
 
         if (mpsoc == null) {
             criarMPSoC();
@@ -131,6 +149,11 @@ public class View extends Application {
             switch (comboBoxHeuristicas.getValue()) {
                 case "FF":
                     heuristica = new FF(mpsoc, listaAplicativos);
+                    break;
+                case "NN":
+                    heuristica = new NN(mpsoc, listaAplicativos);
+                    break;
+
             }
         }
 
@@ -153,11 +176,39 @@ public class View extends Application {
         listaAplicativos = LeitorArquivo.montarLista(LeitorArquivo.carregarArquivo());
 
         if (listaAplicativos != null) {
-            resetarLegenda();
-            resetarContadores();
-            calcularAplicativos();
-            AtualizarLabel();
+            buttonResetClick();
             buttonStart.setDisable(false);
+            buttonReset.setDisable(false);
+        }
+
+    }
+
+    private void buttonResetClick() {
+
+        contadorTasksTotal = 0;
+        totalTasks = 0;
+        resetarContadores();
+        resetarLegenda();
+        calcularAplicativos();
+        AtualizarLabel();
+
+        mpsoc = null;
+        pane.getChildren().clear();
+
+        textFieldColunas.setDisable(false);
+        textFieldLinhas.setDisable(false);
+        
+        if(listaAplicativos != null){
+            buttonStart.setDisable(false);
+        }
+        
+
+    }
+
+    private void heuristicaChange() {
+
+        if (mpsoc != null) {
+            buttonResetClick();
         }
 
     }
@@ -212,7 +263,7 @@ public class View extends Application {
 
         comboBoxHeuristicas = new ComboBox();
         comboBoxHeuristicas.getItems().add("FF");
-        comboBoxHeuristicas.getItems().add("H1");
+        comboBoxHeuristicas.getItems().add("NN");
         comboBoxHeuristicas.getItems().add("H2");
         comboBoxHeuristicas.getSelectionModel().selectFirst();
         vBoxSettings.getChildren().add(comboBoxHeuristicas);
@@ -240,6 +291,11 @@ public class View extends Application {
         hBox1.setSpacing(10);
         hBox1.setStyle("-fx-background-color: #336699;");
 
+        HBox hBox2 = new HBox();
+        hBox2.setPadding(new Insets(15, 12, 15, 12));
+        hBox2.setSpacing(10);
+        hBox2.setStyle("-fx-background-color: #336699;");
+
         labelAplicativos = new Label("0");
         labelAplicativosTotal = new Label("0");
         labelTask = new Label("0");
@@ -254,13 +310,25 @@ public class View extends Application {
 
         buttonImport = new Button("Importar");
         buttonStart = new Button("Start");
+        buttonReset = new Button("Reset");
 
+        hBox2.getChildren().add(buttonReset);
+        hBox2.setAlignment(Pos.BASELINE_LEFT);
+
+        hBox.setMinSize(windowWidth, 0);
+
+        Pane espacamento = new Pane();
+        espacamento.setMinSize(20, 0);
+        HBox.setHgrow(espacamento, Priority.ALWAYS);
+
+        hBox.getChildren().add(hBox2);
+        hBox.getChildren().add(espacamento);
         hBox.getChildren().add(hBox1);
         hBox.getChildren().add(buttonImport);
         hBox.getChildren().add(buttonStart);
         hBox.setAlignment(Pos.BASELINE_RIGHT);
-        //</editor-fold>
 
+        //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="Centro">
         pane = new Pane();
         pane.setMinHeight(500);
@@ -333,30 +401,6 @@ public class View extends Application {
         }
 
         labelAplicativos.setText(String.valueOf(contadorApp));
-
-    }
-
-    private void montarMatrizInicial() {
-
-        for (int i = 0; i < colunas; i++) {
-            for (int j = 0; j < linhas; j++) {
-
-                listaRectangulos.add(new Rectangle(i * hGap + width, j * vGap + height, width, height));
-                listaRectangulos.get(i * linhas + j).setFill(Color.GRAY);
-
-                if (i + 1 < colunas) {
-                    listaConexoes.add(new Rectangle((i * hGap + width) + width, (j * vGap + (height / 2 - 5)) + height, width, 10));
-                }
-                if (j + 1 < linhas) {
-                    listaConexoes.add(new Rectangle((i * hGap + (width / 2 - 5)) + width, (j * vGap + height) + height, 10, height));
-                }
-
-            }
-
-        }
-
-        pane.getChildren().setAll(listaRectangulos);
-        pane.getChildren().addAll(listaConexoes);
 
     }
 
@@ -446,13 +490,32 @@ public class View extends Application {
     }
 
     private void setLinhasColunas() {
-        if (!textFieldLinhas.getText().isEmpty()) {
+        if (!textFieldLinhas.getText().isEmpty() && mpsoc == null) {
             linhas = Integer.valueOf(textFieldLinhas.getText());
         }
 
-        if (!textFieldColunas.getText().isEmpty()) {
+        if (!textFieldColunas.getText().isEmpty() && mpsoc == null) {
             colunas = Integer.valueOf(textFieldColunas.getText());
         }
+
+        if (totalTasks > (linhas * colunas) && mpsoc == null) {
+
+            int recomendado = (int) Math.ceil(Math.sqrt(totalTasks));
+
+            Alert dialogBox = new Alert(Alert.AlertType.INFORMATION, "O tamanho do MPSoC é insuficiente para essa quantidade de tarefas,"
+                    + " o tamanho foi automaticamente alterado para: " + String.valueOf(recomendado) + "x" + String.valueOf(recomendado));
+            dialogBox.show();
+            
+            colunas = recomendado;
+            linhas = recomendado;
+
+        }
+
+        if (textFieldLinhas.getText().isEmpty() || textFieldColunas.getText().isEmpty()) {
+            textFieldLinhas.setText(String.valueOf(linhas));
+            textFieldColunas.setText(String.valueOf(colunas));
+        }
+
     }
 
 }
