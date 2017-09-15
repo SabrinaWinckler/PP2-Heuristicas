@@ -153,7 +153,6 @@ public class View extends Application {
                 case "NN":
                     heuristica = new NN(mpsoc, listaAplicativos);
                     break;
-
             }
         }
 
