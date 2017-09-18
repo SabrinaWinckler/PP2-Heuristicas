@@ -7,6 +7,7 @@ package view;
 
 import gerais.Aplicativo;
 import gerais.CanalCom;
+import gerais.Celula;
 import gerais.LeitorArquivo;
 import gerais.MPSoC;
 import heuristicas.FF;
@@ -45,6 +46,7 @@ public class View extends Application {
     Button buttonStart;
     Button buttonImport;
     Button buttonReset;
+    Button buttonRunAll;
     ComboBox<String> comboBoxHeuristicas;
     Pane pane;
     Pane paneLegenda;
@@ -85,6 +87,7 @@ public class View extends Application {
     List<Color> listaCores;
     MPSoC mpsoc;
     Heuristica heuristica;
+    long[] tempoExecucao;
     //</editor-fold>
 
     @Override
@@ -104,6 +107,7 @@ public class View extends Application {
         eventHandlers();
         buttonStart.setDisable(true);
         buttonReset.setDisable(true);
+        buttonRunAll.setDisable(true);
 
     }
 
@@ -131,6 +135,12 @@ public class View extends Application {
             heuristicaChange();
         });
 
+        if (buttonRunAll != null) {
+            buttonRunAll.setOnAction(event -> {
+                buttonRunAllClick();
+            });
+        }
+
     }
 
     //<editor-fold defaultstate="collapsed" desc="Implementacao Ações botões">
@@ -156,7 +166,11 @@ public class View extends Application {
             }
         }
 
+        long inicio = System.nanoTime();
+
         heuristica.executar();
+
+        tempoExecucao[contadorTasksTotal] = System.nanoTime() - inicio;
 
         contadorTasksTotal++;
         contadorTasks++;
@@ -166,6 +180,16 @@ public class View extends Application {
 
         if (contadorTasksTotal == totalTasks) {
             buttonStart.setDisable(true);
+            buttonRunAll.setDisable(true);
+            gerarDadosAnalise();
+        }
+
+    }
+
+    private void buttonRunAllClick() {
+
+        for (int i = contadorTasksTotal; i < totalTasks; i++) {
+            buttonStartClick();
         }
 
     }
@@ -178,6 +202,7 @@ public class View extends Application {
             buttonResetClick();
             buttonStart.setDisable(false);
             buttonReset.setDisable(false);
+            buttonRunAll.setDisable(false);
         }
 
     }
@@ -196,11 +221,11 @@ public class View extends Application {
 
         textFieldColunas.setDisable(false);
         textFieldLinhas.setDisable(false);
-        
-        if(listaAplicativos != null){
+
+        if (listaAplicativos != null) {
             buttonStart.setDisable(false);
+            buttonRunAll.setDisable(false);
         }
-        
 
     }
 
@@ -310,6 +335,7 @@ public class View extends Application {
         buttonImport = new Button("Importar");
         buttonStart = new Button("Start");
         buttonReset = new Button("Reset");
+        buttonRunAll = new Button("Run All");
 
         hBox2.getChildren().add(buttonReset);
         hBox2.setAlignment(Pos.BASELINE_LEFT);
@@ -325,6 +351,7 @@ public class View extends Application {
         hBox.getChildren().add(hBox1);
         hBox.getChildren().add(buttonImport);
         hBox.getChildren().add(buttonStart);
+        hBox.getChildren().add(buttonRunAll);
         hBox.setAlignment(Pos.BASELINE_RIGHT);
 
         //</editor-fold>
@@ -373,6 +400,8 @@ public class View extends Application {
         }
 
         labelTaskTotal.setText(String.valueOf(totalTasks));
+
+        tempoExecucao = new long[totalTasks];
 
     }
 
@@ -504,7 +533,7 @@ public class View extends Application {
             Alert dialogBox = new Alert(Alert.AlertType.INFORMATION, "O tamanho do MPSoC é insuficiente para essa quantidade de tarefas,"
                     + " o tamanho foi automaticamente alterado para: " + String.valueOf(recomendado) + "x" + String.valueOf(recomendado));
             dialogBox.show();
-            
+
             colunas = recomendado;
             linhas = recomendado;
 
@@ -514,6 +543,50 @@ public class View extends Application {
             textFieldLinhas.setText(String.valueOf(linhas));
             textFieldColunas.setText(String.valueOf(colunas));
         }
+
+    }
+
+    private void gerarDadosAnalise() {
+
+        int contadorVerde = 0;
+        int contadorAmarelo = 0;
+        int contadorVermelho = 0;
+        int totalCanais = 0;
+
+        for (int i = 0; i < linhas; i++) {
+            for (int j = 0; j < colunas; j++) {
+
+                for (CanalCom canal : mpsoc.getCelulas()[i][j].getListaCanais()) {
+
+                    if (canal.getCargaIda() > 90 || canal.getCargaVolta() > 90) {
+                        contadorVermelho++;
+                    } else {
+                        if (canal.getCargaIda() >= 50 || canal.getCargaVolta() >= 50) {
+                            contadorAmarelo++;
+                        } else {
+                            contadorVerde++;
+                        }
+                    }
+
+                    totalCanais++;
+
+                }
+
+            }
+        }
+
+        System.out.println(contadorVerde + " " + contadorAmarelo + " " + contadorVermelho + "\n");
+
+        long tempoTotal = 0;
+
+        for (int i = 0; i < tempoExecucao.length; i++) {
+
+            tempoTotal += tempoExecucao[i];
+        }
+
+        long tempoMedio = tempoTotal / (long) tempoExecucao.length;
+
+        System.out.println(tempoMedio+"\n");
 
     }
 
